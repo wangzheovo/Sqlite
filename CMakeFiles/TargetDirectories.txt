@@ -1,0 +1,3 @@
+/home/wangz/桌面/Sqlite/CMakeFiles/SQLite.dir
+/home/wangz/桌面/Sqlite/CMakeFiles/edit_cache.dir
+/home/wangz/桌面/Sqlite/CMakeFiles/rebuild_cache.dir
