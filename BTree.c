@@ -4,7 +4,7 @@
  * @LastEditors: WangZhe
  * @LastEditTime: 2023-09-13 21:54:45
  * @FilePath: /Sqlite/BTree.c
- * @Description: B+ Tree实现
+ * @Description: B Tree实现
  */
 #include <stdio.h>
 #include <stdbool.h>
@@ -532,6 +532,20 @@ void leaf_node_insert(Cursor *cursor, uint32_t key, Row *value)
 
 
 
+/**
+ * @ description: 更新叶节点key/value
+ */
+void leaf_node_update(Cursor *cursor, uint32_t key, Row *value)
+{
+    void *node = get_page(cursor->table->pager, cursor->page_num);
+
+    uint32_t num_cells = *leaf_node_num_cells(node);
+    
+    *(leaf_node_key(node, cursor->cell_num)) = key;
+    serialize_row(value, leaf_node_value(node, cursor->cell_num));
+}
+
+
 
 /**
  * @description: 二分搜索叶子节点
@@ -601,7 +615,6 @@ uint32_t internal_node_find_child(void *node, uint32_t key)
     }
     return min_index;
 }
-
 
 Cursor *internal_node_find(Table *table, uint32_t page_num, uint32_t key)
 {

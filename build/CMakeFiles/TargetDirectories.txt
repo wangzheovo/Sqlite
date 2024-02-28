@@ -1,0 +1,3 @@
+/home/desktop/gitrep/Sqlite/Sqlite/build/CMakeFiles/SQLite.dir
+/home/desktop/gitrep/Sqlite/Sqlite/build/CMakeFiles/edit_cache.dir
+/home/desktop/gitrep/Sqlite/Sqlite/build/CMakeFiles/rebuild_cache.dir

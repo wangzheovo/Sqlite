@@ -43,7 +43,9 @@ void *get_page(Pager *pager, uint32_t page_num)
 
         if (page_num <= num_pages)
         {
+            // 定位到读取位置
             lseek(pager->file_descriptor, page_num * PAGE_SIZE, SEEK_SET);
+            // 将读取到的文件存储在page缓冲区中
             ssize_t bytes_read = read(pager->file_descriptor, page, PAGE_SIZE);
             if (bytes_read == -1)
             {
@@ -117,6 +119,7 @@ void pager_flush(Pager *pager, uint32_t page_num)
         printf("Error seeking: %d\n", errno);
         exit(EXIT_FAILURE);
     }
+    // 将缓冲区中的数据保存到文件描述符所表示的文件中
     ssize_t bytes_writen = write(pager->file_descriptor, pager->pages[page_num], PAGE_SIZE);
 
     if (bytes_writen == -1)
@@ -141,7 +144,7 @@ Table *db_open(const char *filename)
     Table *table = malloc(sizeof(Table));
     table->pager = pager;
     table->root_page_num = 0;
-
+    // 第一次打开
     if (pager->num_pages == 0)
     {
         void *root_node = get_page(pager, 0);

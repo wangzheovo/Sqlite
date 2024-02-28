@@ -44,6 +44,8 @@ typedef struct
     uint32_t id;
     char username[COLUMN_USERNAME_SIZE + 1];
     char email[COLUMN_EMAIL_SIZE + 1];
+    uint32_t update_id;
+    uint32_t select_id;
 } Row;
 
 
@@ -78,14 +80,17 @@ typedef enum
 typedef enum
 {
     STATEMENT_INSERT,
-    STATEMENT_SELECT
+    STATEMENT_SELECT,
+    STATEMENT_UPDATE,
+    STATEMENT_DELETE
 } StatementType;
 
 typedef enum
 {
     EXECUTE_SUCCESS,
     EXECUTE_TABLE_FULL,
-    EXECUTE_DUPLICATE_KEY
+    EXECUTE_DUPLICATE_KEY,
+    EXECUTE_KEY_NONE
 } ExecuteResult;
 
 
@@ -93,6 +98,9 @@ typedef struct
 {
     StatementType type;
     Row row_to_insert;
+    Row row_to_update;
+    Row row_to_select;
+    Row row_to_delete;
 } Statement;
 
 
@@ -110,6 +118,7 @@ const extern uint32_t ROW_SIZE;
 typedef struct
 {
     Table *table;
+    // 通过节点的页码和该节点内的单元格号来标识位置。
     uint32_t page_num;
     uint32_t cell_num;
     bool end_of_table;
@@ -128,6 +137,8 @@ void close_input_buffer(InputBuffer *input_buffer);
 ExecuteResult execute_insert(Statement *statement, Table *table);
 
 ExecuteResult execute_select(Statement *statement, Table *table);
+
+ExecuteResult execute_update(Statement *statement, Table *table);
 
 void serialize_row(Row *source, void *destination);
 
@@ -275,6 +286,8 @@ void internal_node_insert(Table *table, uint32_t parent_page_num, uint32_t child
 void leaf_node_split_and_insert(Cursor *cursor, uint32_t key, Row *value);
 
 void leaf_node_insert(Cursor *cursor, uint32_t key, Row *value);
+
+void leaf_node_update(Cursor *cursor, uint32_t key, Row *value);
 
 Cursor *leaf_node_find(Table *table, uint32_t page_num, uint32_t key);
 

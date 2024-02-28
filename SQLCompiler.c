@@ -94,6 +94,73 @@ PrepareResult prepare_insert(InputBuffer *input_buffer, Statement *statement)
     return PREPARE_SUCCESS;
 }
 
+PrepareResult prepare_select(InputBuffer *input_buffer, Statement *statement)
+{
+    statement->type = STATEMENT_SELECT;
+    
+    if(strcmp(input_buffer->buffer, "select") == 0){
+        int select_id = -1;
+        statement->row_to_select.select_id = select_id;
+        return PREPARE_SUCCESS;
+    }
+
+    char *keyword = strtok(input_buffer->buffer, " ");
+    char *where_key = strtok(NULL, " ");
+    char *select_id_string = strtok(NULL, " ");
+    
+    if ( strcmp(where_key,"where")!=0 && where_key != NULL)
+    {
+        return PREPARE_SYNTAX_ERROR;
+    }
+    int select_id = -1;
+    if(select_id_string != NULL){
+        select_id = atoi(select_id_string);
+    }
+    statement->row_to_select.select_id = select_id;
+    
+    return PREPARE_SUCCESS;
+}
+
+PrepareResult prepare_update(InputBuffer *input_buffer, Statement *statement)
+{
+    statement->type = STATEMENT_UPDATE;
+    
+    char *keyword = strtok(input_buffer->buffer, " ");
+    char *id_string = strtok(NULL, " ");
+    char *username = strtok(NULL, " ");
+    char *email = strtok(NULL, " ");
+    char *where_key = strtok(NULL, " ");
+    // char *id_key = strtok(NULL, " ");
+    char *update_id_string = strtok(NULL, " ");
+    
+    if (id_string == NULL || username == NULL || email == NULL || strcmp(where_key,"where")!=0)
+    {
+        return PREPARE_SYNTAX_ERROR;
+    }
+    int id = atoi(id_string);
+    int update_id = atoi(update_id_string);
+    if (id < 0 || update_id < 0)
+    {
+        return PREPARE_NEGATIVE_ID;
+    }
+    if (strlen(username) > COLUMN_USERNAME_SIZE)
+    {
+        return PREPARE_STRING_TOO_LONG;
+    }
+    if (strlen(email) > COLUMN_EMAIL_SIZE)
+    {
+        return PREPARE_STRING_TOO_LONG;
+    }
+    statement->row_to_update.id = id;
+    strcpy(statement->row_to_update.username, username);
+    strcpy(statement->row_to_update.email, email);
+    statement->row_to_update.update_id = update_id;
+    
+    
+    return PREPARE_SUCCESS;
+}
+
+
 
 /**
  * @description: 识别输入语句的类型
@@ -109,10 +176,13 @@ PrepareResult prepare_statement(InputBuffer *input_buffer, Statement *statement)
         return prepare_insert(input_buffer, statement);
     }
 
-    if (strcmp(input_buffer->buffer, "select") == 0)
+    if (strncmp(input_buffer->buffer, "select", 6) == 0)
     {
-        statement->type = STATEMENT_SELECT;
-        return PREPARE_SUCCESS;
+        return prepare_select(input_buffer,statement);
+    }
+    if(strncmp(input_buffer->buffer, "update", 6) == 0)
+    {
+        return prepare_update(input_buffer, statement);
     }
 
     return PREPARE_UNRECOGNIZED_STATEMENT;
@@ -134,6 +204,8 @@ ExecuteResult execute_statement(Statement *statement, Table *table)
         return execute_insert(statement, table);
     case (STATEMENT_SELECT):
         return execute_select(statement, table);
+    case (STATEMENT_UPDATE):
+        return execute_update(statement, table);
 
     }
     return EXECUTE_SUCCESS;

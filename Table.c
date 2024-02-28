@@ -80,11 +80,6 @@ ExecuteResult execute_insert(Statement *statement, Table *table)
     return EXECUTE_SUCCESS;
 }
 
-
-
-
-
-
 /**
  * @description: 执行查询操作
  * @param {Table} *table
@@ -98,11 +93,43 @@ ExecuteResult execute_select(Statement *statement, Table *table)
     while (!(cursor->end_of_table))
     {
         deserialize_row(cursor_value(cursor), &row);
-        print_row(&row);
+        if(row.id == statement->row_to_select.select_id || statement->row_to_select.select_id == -1){
+            print_row(&row);
+        }
         cursor_advance(cursor);
     }
     free(cursor);
     return EXECUTE_SUCCESS;
+}
+
+/**
+ * @description: 执行更新操作
+ * @param {Table} *table
+ * @return {*}
+ * @note: 
+ */
+ExecuteResult execute_update(Statement *statement, Table *table)
+{
+    void *node = get_page(table->pager, table->root_page_num);
+    uint32_t num_cells = (*leaf_node_num_cells(node));
+
+    Row *row_to_update = &(statement->row_to_update);
+    uint32_t key_to_update = row_to_update->update_id;
+    Cursor *cursor = table_find(table, key_to_update);
+
+    if (cursor->cell_num < num_cells)
+    {
+        uint32_t key_at_index = *leaf_node_key(node, cursor->cell_num);
+        // printf("key_to_update: %d,key_at_index : %d\n",key_to_update, key_at_index);
+        if (key_at_index == key_to_update)
+        {
+            leaf_node_update(cursor, row_to_update->update_id, row_to_update);
+            free(cursor);
+            return EXECUTE_SUCCESS;
+        }
+    }
+    free(cursor);
+    return EXECUTE_KEY_NONE;
 }
 
 /**

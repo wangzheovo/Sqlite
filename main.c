@@ -80,6 +80,9 @@ int main(int argc, char *argv[])
         case (EXECUTE_TABLE_FULL):
             printf("Error: Table full.\n");
             break;
+        case (EXECUTE_KEY_NONE):
+            printf("key is not in db\n");
+            break;
         }
     }
     return 0;
