@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/SQLite.dir/main.c.o CMakeFiles/SQLite.dir/Constants.c.o CMakeFiles/SQLite.dir/REPL.c.o CMakeFiles/SQLite.dir/SQLCompiler.c.o CMakeFiles/SQLite.dir/Pager.c.o CMakeFiles/SQLite.dir/BTree.c.o CMakeFiles/SQLite.dir/Table.c.o CMakeFiles/SQLite.dir/Cursor.c.o -o db 
